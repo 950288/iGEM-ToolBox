@@ -5,37 +5,53 @@
   </div>
 </template>
 
-<script>
-// import { runPythonByMain } from "../utils/useIPC";
-// import { request } from "../api/request";
-import { getReference } from "../api/reference";
-// import axios from "axios";
-export default {
-  methods: {
-    test: function() {
-      // runPythonByMain("./py/hello.py", {
-      //   args:[11,2,3]
-      // }, (err, results) => {
-      //   console.log(err, results);
-      //   console.log(JSON.parse(results[0].replace(/'/g, `"`)));
-      // });
-      // axios
-      //   .get("http://api.crossref.org/works/10.1186/s13045-020-00910-5")
-      //   .then(res => {
-      //     console.log(res);
-      //   });
-      // request.get({
-      //   url: "http://api.crossref.org/works/10.1186/s13045-020-00910-5",
-      //   success: res => {
-      //     console.log(res);
-      //   },
-      //   failure: err => {
-      //     console.error(err);
-      //   }
-      // });
-      // console.log(getReference("10.1016/j.molcel.2018.01.003"))
-      getReference("10.1128/AEM.01156-08");
-    }
-  }
-};
+<script setup>
+// import { pullProject } from "@/utils/git";
+import { useUserStore } from "@/store";
+// import { SyncFiles } from "@/api/upload";
+const electron = window.require('electron');
+const {
+  ipcRenderer
+} = electron;
+
+async function test() {
+  // const { username, accsessTokens } = useUserStore().$state;
+  // const { projectPath } = useTemplateStore().$state;
+  // const { gitPath } = useGitLabStore().$state;
+  // await pullProject({
+  //   username,
+  //   accsessTokens,
+  //   projectPath,
+  //   gitPath,
+  //   success: (res) => {
+  //     console.log("hh", res);
+  //   },
+  // });
+  const filelist = [
+    {
+      filename: "test",
+      filepath:
+        "D:\\github\\iGEM-ToolBox\\src\\assets\\logo.png",
+      type: "ima",
+    },
+    // {
+    //   filename: "aaa",
+    //   filepath:
+    //     "E:\\iGEM\\zjut-china\\src\\assets\\fonts\\hack-bold-subset.woff",
+    //   type: "ima",
+    // },
+  ];
+  const username = useUserStore().username;
+  const password = useUserStore().password;
+  ipcRenderer.send("SyncFiles",filelist, username, password)
+  // SyncFiles(filelist, username, password).then((URL_list) => {
+  //   console.log(URL_list);
+  // });
+}
+
+
+// const {ipcRenderer} = require('electron')
+        ipcRenderer.on('SyncFiles:return', (event, data) => {
+           console.log('>>>>>>>>params',data) //我是主进程发送的参数
+        });
 </script>

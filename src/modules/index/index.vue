@@ -1,15 +1,14 @@
 <template>
   <el-config-provider :locale="language">
-    <div style="height: 100vh;">
-      <el-container style="height: 100%;">
+    <div style="height: 100vh">
+      <el-container style="height: 100%">
         <el-aside width="auto">
           <el-menu
-            style="height:100%;"
-            :default-active="activeIndex"
+            style="height: 100%"
+            default-active="/"
             mode="vertical"
             :router="true"
             :collapse="true"
-            @select="select"
           >
             <el-menu-item index="/">
               <el-icon>
@@ -25,6 +24,14 @@
               </el-icon>
               <template #title>
                 <span>Wiki</span>
+              </template>
+            </el-menu-item>
+            <el-menu-item index="literature">
+              <el-icon>
+                <SvgIcon iconClass="literature" />
+              </el-icon>
+              <template #title>
+                <span>Literature</span>
               </template>
             </el-menu-item>
             <el-menu-item index="team">
@@ -115,38 +122,23 @@ body {
   // }
 }
 </style>
-<script>
+<script setup>
 import "../../icons";
-import { en, zhCn } from "element-plus/lib/locale";
-export default {
-  setup() {
-    return {};
-  },
-  data() {
-    return {
-      activeIndex: this.$router.currentRoute.value.name
-    };
-  },
-  mounted() {},
-  methods: {
-    select() {
-      this.activeIndex = this.$router.currentRoute.value.name;
-    }
-  },
-  computed: {
-    language: function() {
-      if (
-        this.$store.state.config.find(
-          item => item.itemWrapProp?.label === "Language"
-        ).value === "zh"
-      ) {
-        console.log("zh");
-        return zhCn;
-      } else {
-        console.log("en");
-        return en;
-      }
-    }
-  }
-};
+import { useConfigStore } from "@/store";
+import { computed, onMounted } from "vue";
+import { getElectronStore } from "@/utils";
+import { getBranch } from "@/utils/git";
+
+onMounted(async () => {
+  getElectronStore();
+  getBranch();
+  let branch = await getBranch()
+  console.log(branch)
+});
+
+const language = computed(() => {
+  const configStore = useConfigStore();
+  const language = computed(() => configStore.language);
+  return language.value.languageList[language.value.currentLanguage];
+});
 </script>
